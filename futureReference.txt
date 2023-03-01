@@ -1,0 +1,5 @@
+const int numberOfFlavors = 10;
+const int numberOfPricesOfCheetos = 5;
+string flavorsOfCheetos[numberOfFlavors];
+int pricesOfCheetos[numberOfPricesOfCheetos];
+int maximumQuantityForASpecificPrice[numberOfPricesOfCheetos];

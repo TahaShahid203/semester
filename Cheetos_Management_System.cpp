@@ -1,20 +1,15 @@
 #include <iostream>
 #include <windows.h>
+#include <conio.h>
 
 using namespace std;
-
-
 
 // You have to sign in with this for the first time:
 
 // username: adminOriginal001
 // password: OAdminO10!
 
-
-
 // Only the last four features, namely: Adding users, deleting users, retrieving users, updating users, work yet. Other features will be added soon.
-
-
 
 /* the arrays for usernames, passwords and roles must be global so that all functions can access them*/
 /* The length of the array has been hardcored according to the capacity of the factory to house employees and admins */
@@ -91,6 +86,68 @@ void deleteUser(string username);
 // Adding orders
 
 const int maximumOrders = 50;
+int manufacturingOrdersCount = 0;
+
+string manufacturingOrderFlavors[maximumOrders];      // flavors of the ordered cheetos will be stored here
+int manufacturingOrderIndividualPrice[maximumOrders]; // price of each order will be stored in parallel here
+int manufacturingOrderQuantity[maximumOrders];        // quantity of each order will be stored in parallel here
+
+void addManufacturingOrder();                    // function to add order to the arrays
+bool orderPriceVerification(string price);       // function to validate order price before converting them to int and storing in array
+bool orderQuantityVerification(string quantity); // function to validate order quantity before converting them to int and storing in array
+
+// view manufacturing orders
+
+void viewManufacturingOrders();
+
+// update manufacturing orders
+
+void updateManufacturingOrders();
+
+// delete manufacturing orders
+void deleteManufacturingOrderInterface();  // interface
+void deleteManufacturingOrders(int index); // deletor
+//..........................................................................................................................................................
+// ingredients
+
+const int maximumIngredients = 50;
+int ingredientsOrdersCount = 0;
+
+string ingredientsOrdered[maximumIngredients];
+int quantitiesOfIngredientsOrdered[maximumIngredients];
+
+// add ingredients
+
+void addIngredients();
+// view ingredients ordered
+
+void viewIngredientsOrdered();
+
+// update ingredients ordered
+
+void updateIngredientsOrdered();
+
+// delete ingredients ordered
+
+void deleteIngredientsOrdered();
+
+//-------------------------------------------------------------------------------------------------------------------------------------
+// ingredients in table
+
+const int maximumRecipeIngredients = 50;
+int numberOfTableIngredients = 0;
+string recipeIngredients[maximumRecipeIngredients];
+// add ingredients to the table
+
+void addIngredientsToTheTable();
+
+// view ingredients in table
+
+void viewIngredientsInTheTable();
+
+//
+// helpful side functions
+bool stringNumberValidate(string number);
 
 main()
 {
@@ -102,14 +159,31 @@ main()
     while (true)
     {
         string username, password, role;
-        bool result = false;   // result will check if the signed in credentials are valid or not
-        bool flagAdmin = false;  // flagAdmin will allow us to quickly jump from choosing an admin option to the login page
+        string exitAnswer = "N";
+        bool result = false;       // result will check if the signed in credentials are valid or not
+        bool flagAdmin = false;    // flagAdmin will allow us to quickly jump from choosing an admin option to the login page
         bool flagEmployee = false; // similar to flagAdmin but for employees
         system("cls");
         header();
         subHeader("Sign In");
-        cout << "Enter username: ";
+        cout << "Enter username: (Enter 0 to exit the program)";
         cin >> username;
+
+        if (username == "0")
+        {
+            cout << "Are you sure you want to leave? (Y/N)";
+            cin >> exitAnswer;
+            if (exitAnswer == "Y" || exitAnswer == "y")
+            {
+                system("cls");
+                cout << "Thank you for your time" << endl;
+                break;
+            }
+            else
+            {
+                continue;
+            }
+        }
 
         cout << "Enter password: ";
         cin >> password;
@@ -127,8 +201,8 @@ main()
                     system("cls");
                     header();
                     subHeader("Admin main");
-                    adminInterface();  // show all available features for admin
-                    string option = adminChoice();  // show admin's chosen option
+                    adminInterface();              // show all available features for admin
+                    string option = adminChoice(); // show admin's chosen option
 
                     /* after getting the option chosen by the admin, the proper function will be called*/
                     if (!adminFunctionChoosers(option, username))
@@ -149,8 +223,8 @@ main()
                     system("cls");
                     header();
                     subHeader("Employee Main");
-                    employeeInterface();  // show employee's available options
-                    string employeeOption = employeeChoice();  // show employee's chosen option
+                    employeeInterface();                      // show employee's available options
+                    string employeeOption = employeeChoice(); // show employee's chosen option
                     /* After getting the option chosen by the employee, the proper function will be displayed */
 
                     if (!employeeFunctionChoosers(employeeOption))
@@ -219,8 +293,8 @@ void invalidUserPrompt()
     char c;
     cout << "Invalid user" << endl;
     cout << endl;
-    cout << "Enter any key to try again";
-    cin >> c;
+    cout << "Enter any key to try again" << endl;
+    getch();
 }
 
 void adminInterface()
@@ -244,6 +318,7 @@ void adminInterface()
     cout << "16 Update user info" << endl;
     cout << "17 View user info" << endl;
     cout << "18 Delete user info" << endl;
+    cout << "19 Delete ingredient from the table" << endl;
     cout << endl;
     cout << "Enter 0 to exit to login screen" << endl;
 }
@@ -277,11 +352,11 @@ string adminChoice()
 
         cout << "Enter choice: ";
         cin >> choice;
-        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13" || choice == "14" || choice == "15" || choice == "16" || choice == "17" || choice == "18"))
+        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13" || choice == "14" || choice == "15" || choice == "16" || choice == "17" || choice == "18" || choice == "19"))
         {
             cout << "That is not an available option." << endl;
-            cout << "Press any key to continue: ";
-            cin >> c;
+            cout << "Press any key to continue: " << endl;
+            getch();
             continue;
         }
         return choice;
@@ -301,8 +376,8 @@ string employeeChoice()
         if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11"))
         {
             cout << "That is not an available option." << endl;
-            cout << "Press any key to continue: ";
-            cin >> c;
+            cout << "Press any key to continue: " << endl;
+            getch();
             continue;
         }
         return choice;
@@ -310,7 +385,7 @@ string employeeChoice()
 }
 
 bool adminFunctionChoosers(string option, string usernameOfUser) /* the function chooser is bool because after choosing and excuting,
-the control might return to the option */ 
+the control might return to the option */
 {
     char c;
 
@@ -321,95 +396,75 @@ the control might return to the option */
 
     else if (option == "1")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        addIngredients();
     }
     else if (option == "2")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        addManufacturingOrder();
     }
     else if (option == "3")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        viewIngredientsOrdered();
     }
     else if (option == "4")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        viewManufacturingOrders();
     }
     else if (option == "5")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        updateIngredientsOrdered();
     }
     else if (option == "6")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        updateManufacturingOrders();
     }
     else if (option == "7")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        deleteIngredientsOrdered();
     }
     else if (option == "8")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        deleteManufacturingOrderInterface();
     }
     else if (option == "9")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (option == "10")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (option == "11")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        viewIngredientsInTheTable();
     }
     else if (option == "12")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        addIngredientsToTheTable();
     }
     else if (option == "13")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (option == "14")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (option == "15")
     {
         if (addUserInterface(usernameOfUser))
         {
             cout << "User added successfully" << endl;
-            cout << "Press any key to continue";
-            cin >> c;
+            cout << "Press any key to continue" << endl;
+            getch();
         }
         else
         {
@@ -417,8 +472,8 @@ the control might return to the option */
             header();
             subHeader("User Adding");
             cout << "Maximum occupancy reached" << endl;
-            cout << "Press any key to continue";
-            cin >> c;
+            cout << "Press any key to continue" << endl;
+            getch();
         }
     }
     else if (option == "16")
@@ -434,13 +489,17 @@ the control might return to the option */
         if (deleteUserInterface(usernameOfUser))
         {
             cout << "User deleted successfully" << endl;
-            cout << "Press any key to continue";
-            cin >> c;
+            cout << "Press any key to continue" << endl;
+            getch();
         }
         else
         {
             return false;
         }
+    }
+    else if (option == "19")
+    {
+        deleteIngredientsFromTheTable();
     }
 
     return true;
@@ -457,68 +516,68 @@ bool employeeFunctionChoosers(string employeeOption)
     else if (employeeOption == "1")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "2")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "3")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "4")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "5")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "6")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "7")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "8")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "9")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "10")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
     else if (employeeOption == "11")
     {
         cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: ";
-        cin >> c;
+        cout << "Enter any key to continue: " << endl;
+        getch();
     }
 
     return flag;
@@ -598,8 +657,8 @@ bool addUserInterface(string usernameOfUser)
 
             if (roleFlag || passwordFlag || usernameFlag)
             {
-                cout << "Enter any key to continue";
-                cin >> c;
+                cout << "Enter any key to continue" << endl;
+                getch();
             }
             else
             {
@@ -666,8 +725,8 @@ void viewUsersInfo()
             if (!(option[i] >= 48 && option[i] <= 57))
             {
                 cout << "Option must only contain numbers" << endl;
-                cout << "Enter any key to continue";
-                cin >> c;
+                cout << "Enter any key to continue" << endl;
+                getch();
                 flag = true;
                 break;
             }
@@ -690,7 +749,7 @@ void viewUsersInfo()
         else
         {
             cout << "You entered the wrong option. Try again" << endl;
-            cin >> c;
+            getch();
             continue;
         }
     }
@@ -709,8 +768,8 @@ void viewSpecificUser(int option)
     }
     cout << "Role: " << roles[option] << endl;
 
-    cout << "Press any key to go back";
-    cin >> c;
+    cout << "Press any key to go back" << endl;
+    getch();
 }
 
 // update user info
@@ -748,15 +807,15 @@ void updateUserInterface(string username)
         else if (roleToUpdate == "admin")
         {
             cout << "You cannot update an admin account without signing into it" << endl;
-            cout << "press any key to continue";
-            cin >> c;
+            cout << "press any key to continue" << endl;
+            getch();
             continue;
         }
         else
         {
             cout << "Username does not exist" << endl;
-            cout << "press any key to continue";
-            cin >> c;
+            cout << "press any key to continue" << endl;
+            getch();
             continue;
         }
     }
@@ -782,8 +841,8 @@ void updateUserInfo(string username)
         {
             if (!(userAuthenticate(newUsername)))
             {
-                cout << "Username already exists. Try again";
-                cin >> c;
+                cout << "Username already exists. Try again" << endl;
+                getch();
                 continue;
             }
         }
@@ -792,8 +851,8 @@ void updateUserInfo(string username)
             if (adminCount() == 1 && getRole(username) == "admin")
             {
                 cout << "You cannot change your role to employee because there will be no more admins left" << endl;
-                cout << "press any key to continue";
-                cin >> c;
+                cout << "press any key to continue" << endl;
+                getch();
                 newRole = "admin";
             }
         }
@@ -840,8 +899,8 @@ bool deleteUserInterface(string username)
                 {
 
                     cout << "You cannot delete an admin without signin into his account" << endl;
-                    cout << "Press any key to try again";
-                    cin >> c;
+                    cout << "Press any key to try again" << endl;
+                    getch();
                     continue;
                 }
                 else
@@ -849,8 +908,8 @@ bool deleteUserInterface(string username)
                     if (adminCount() == 1)
                     {
                         cout << "You cannot delete this account or there will be no more users left" << endl;
-                        cout << "Press any key to continue";
-                        cin >> c;
+                        cout << "Press any key to continue" << endl;
+                        getch();
                         continue;
                     }
                     else
@@ -860,14 +919,14 @@ bool deleteUserInterface(string username)
                 }
             }
             deleteUser(usernameToBeDeleted);
-            cout << "Press any key to continue";
-            cin >> c;
+            cout << "Press any key to continue" << endl;
+            getch();
         }
         else
         {
             cout << "Username does not exist. Please try again" << endl;
-            cout << "Press any key to continue";
-            cin >> c;
+            cout << "Press any key to continue" << endl;
+            getch();
             continue;
         }
     }
@@ -888,31 +947,6 @@ void deleteUser(string username)
     roles[countUsers - 1] = "temporary123";
     countUsers--;
 }
-
-void header()
-{
-    cout << "    ##############################" << endl;
-    cout << "" << endl;
-    cout << "  /$$$$$$  /$$                             /$$" << endl;
-    cout << " /$$__  $$| $$                            | $$" << endl;
-    cout << "| $$  \\__/| $$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$" << endl;
-    cout << "| $$      | $$__  $$ /$$__  $$ /$$__  $$|_  $$_/   /$$__  $$ /$$_____/" << endl;
-    cout << "| $$      | $$  \\ $$| $$$$$$$$| $$$$$$$$  | $$    | $$  \\ $$|  $$$$$$ " << endl;
-    cout << "| $$    $$| $$  | $$| $$_____/| $$_____/  | $$ /$$| $$  | $$ \\____  $$" << endl;
-    cout << "|  $$$$$$/| $$  | $$|  $$$$$$$|  $$$$$$$  |  $$$$/|  $$$$$$/ /$$$$$$$/" << endl;
-    cout << " \\______/ |__/  |__/ \\_______/ \\_______/   \\___/   \\______/ |_______/ " << endl;
-    cout << " " << endl;
-    cout << "                                  ######################################" << endl;
-}
-
-void subHeader(string nameMenu)
-{
-    cout << endl;
-    cout << "----------------------------------------------------------------------------------------------" << endl;
-    cout << "                               " << nameMenu << " Menu                                        " << endl;
-    cout << "----------------------------------------------------------------------------------------------" << endl;
-}
-
 int adminCount()
 {
     int count = 0;
@@ -937,4 +971,511 @@ int userIndex(string username)
     }
 
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------------------------------------------------------------
+// manufacturing orders
+// adding
+
+void addManufacturingOrder()
+{
+    string choice, numberOfOrders, temporaryQuantity, temporaryPrice;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Manufacturing orders");
+        cout << "Enter the number of orders that you wish to enter: (Enter 0 to go back)" << endl;
+        cout << "You can enter " << maximumOrders - manufacturingOrdersCount << " orders";
+        cin >> numberOfOrders;
+        if (numberOfOrders == "0")
+        {
+            break;
+        }
+        if (!stringNumberValidate(numberOfOrders))
+        {
+            cout << "Enter a correct number!" << endl;
+            cout << "Press any key to continue" << endl;
+            getch();
+            continue;
+        }
+        if (stoi(numberOfOrders) + manufacturingOrdersCount > 50)
+        {
+            cout << "You cannot add so many orders. " << endl;
+            cout << "Enter under " << maximumOrders - manufacturingOrdersCount << " orders" << endl;
+            cout << "Press any key to continue" << endl;
+            getch();
+            continue;
+        }
+        for (int i = 0; i < stoi(numberOfOrders); i++)
+        {
+            cout << "Enter Flavor: ";
+            cin >> manufacturingOrderFlavors[manufacturingOrdersCount];
+
+            cout << "Enter quantity: ";
+            cin >> temporaryQuantity;
+
+            if (orderQuantityVerification(temporaryQuantity) && stringNumberValidate(temporaryQuantity))
+            {
+                manufacturingOrderQuantity[manufacturingOrdersCount] = stoi(temporaryQuantity);
+            }
+            else
+            {
+                cout << "Not a valid quantity. Press any key to try again" << endl;
+                getch();
+                i--;
+                continue;
+            }
+
+            cout << "Enter price: ";
+            cin >> temporaryPrice;
+
+            if (orderPriceVerification(temporaryPrice) && stringNumberValidate(temporaryPrice))
+            {
+                manufacturingOrderIndividualPrice[manufacturingOrdersCount] = stoi(temporaryPrice);
+            }
+            else
+            {
+                cout << "Not a valid price. Press any key to try again" << endl;
+                getch();
+                i--;
+                continue;
+            }
+            manufacturingOrdersCount++;
+        }
+    }
+}
+bool orderPriceVerification(string price)
+{
+    return true;
+}
+bool orderQuantityVerification(string quantity)
+{
+    return true;
+}
+
+// view manufacturing orders
+void viewManufacturingOrders()
+{
+    system("cls");
+    cout << "Serial number:"
+         << "\t"
+         << "Flavor:"
+         << "\t\t"
+         << "Quantity"
+         << "\t\t"
+         << "Price" << endl
+         << endl;
+    for (int i = 0; i < manufacturingOrdersCount; i++)
+    {
+        cout << i + 1 << "\t\t\t" << manufacturingOrderFlavors[i] << "\t\t\t" << manufacturingOrderQuantity[i] << "\t\t\t" << manufacturingOrderIndividualPrice[i] << endl;
+    }
+    cout << endl;
+    cout << "Press any key to continue:" << endl;
+    getch();
+}
+
+// update manufaturing orders
+void updateManufacturingOrders()
+{
+    string serialNumberToUpdate, temporaryQuantity, temporaryPrice;
+    bool flavorFlag = true;
+    bool quantityFlag = true;
+    bool priceFlag = true;
+    bool serialNumberFlag = true;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Update Order");
+        if (serialNumberFlag)
+        {
+            cout << "Enter serial number of the order you want to update: ";
+            cout << "Enter 0 to go back";
+            cin >> serialNumberToUpdate;
+        }
+        if (serialNumberToUpdate == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberToUpdate))
+        {
+            if (stoi(serialNumberToUpdate) > 0 && stoi(serialNumberToUpdate) <= manufacturingOrdersCount)
+            {
+                serialNumberFlag = false;
+                if (flavorFlag)
+                {
+                    cout << "Enter new flavor: ";
+                    cin >> manufacturingOrderFlavors[stoi(serialNumberToUpdate) - 1];
+                }
+                if (quantityFlag)
+                {
+                    cout << "Enter new quantity: ";
+                    cin >> temporaryQuantity;
+                }
+                if (priceFlag)
+                {
+                    cout << "Enter new price: ";
+                    cin >> temporaryPrice;
+                }
+                if (stringNumberValidate(temporaryQuantity) && orderQuantityVerification(temporaryQuantity))
+                {
+                    manufacturingOrderQuantity[stoi(serialNumberToUpdate) - 1] = stoi(temporaryQuantity);
+                    quantityFlag = false;
+                }
+                if (stringNumberValidate(temporaryPrice) && orderPriceVerification(temporaryPrice))
+                {
+                    manufacturingOrderIndividualPrice[stoi(serialNumberToUpdate) - 1] = stoi(temporaryPrice);
+                    priceFlag = false;
+                }
+                flavorFlag = false; // future validations for flavor will be called here
+                if (serialNumberFlag || flavorFlag || priceFlag || quantityFlag)
+                {
+                    system("cls");
+                    cout << "Enter correct information. Press any key to continue" << endl;
+                    getch();
+                    continue;
+                }
+                else
+                {
+                    break;
+                }
+            }
+            else
+            {
+                system("cls");
+                cout << "Enter correct information. Press any key to continue" << endl;
+                getch();
+                continue;
+            }
+        }
+        else
+        {
+            system("cls");
+            cout << "Enter correct information. Press any key to continue" << endl;
+            getch();
+            continue;
+        }
+    }
+}
+
+// delete manufacturing orders
+// interface with validations
+void deleteManufacturingOrderInterface()
+{
+    string serialNumberToDelete;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Delete Manufacturing orders");
+        cout << "Enter serial number of order you want to delete. (Press 0 to exit)" << endl;
+        cin >> serialNumberToDelete;
+
+        if (serialNumberToDelete == "0")
+        {
+            break;
+        }
+
+        if (stringNumberValidate(serialNumberToDelete))
+        {
+            if (stoi(serialNumberToDelete) > 0 && stoi(serialNumberToDelete) < manufacturingOrdersCount)
+            {
+                deleteManufacturingOrders(stoi(serialNumberToDelete) - 1);
+            }
+            else
+            {
+                cout << "Enter valid number. Press any key to continue" << endl;
+                getch();
+            }
+        }
+        else
+        {
+            cout << "Enter valid number. Press any key to continue" << endl;
+            getch();
+        }
+    }
+}
+// deletor
+void deleteManufacturingOrders(int index)
+{
+    for (int i = index; i < manufacturingOrdersCount - 1; i++)
+    {
+        manufacturingOrderFlavors[i] = manufacturingOrderFlavors[i + 1];
+        manufacturingOrderIndividualPrice[i] = manufacturingOrderIndividualPrice[i + 1];
+        manufacturingOrderQuantity[i] = manufacturingOrderQuantity[i + 1];
+    }
+    manufacturingOrdersCount--;
+}
+
+// ingredients
+
+// add ingredients
+
+void addIngredients()
+{
+    string ingredientTobeOrdered, quantityOfIngredient;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Adding ingredients");
+        cout << "Enter the name of the ingredient that you want to order: (Press 0 to go back)";
+        cin >> ingredientTobeOrdered;
+
+        if (ingredientTobeOrdered == "0")
+        {
+            break;
+        }
+
+        // ingredients' validatons will be called here in the future
+
+        ingredientsOrdered[ingredientsOrdersCount] = ingredientTobeOrdered;
+
+        cout << "Enter quantity of the ingredient to be ordered: ";
+        cin >> quantityOfIngredient;
+
+        if (stringNumberValidate(quantityOfIngredient))
+        {
+            quantitiesOfIngredientsOrdered[ingredientsOrdersCount] = stoi(quantityOfIngredient);
+        }
+        else
+        {
+            cout << "Enter valid quantity. Press any key to try again" << endl;
+            getch();
+            continue;
+        }
+        ingredientsOrdersCount++;
+    }
+}
+
+// view ingredients ordered
+
+void viewIngredientsOrdered()
+{
+    system("cls");
+    header();
+    subHeader("View ingredients");
+
+    cout << "Serial number"
+         << "\t\t"
+         << "Ingredients"
+         << "\t\t"
+         << "Qunatity ordered" << endl
+         << endl;
+    for (int i = 0; i < ingredientsOrdersCount; i++)
+    {
+        cout << i + 1 << "\t\t" << ingredientsOrdered[i] << "\t\t" << quantitiesOfIngredientsOrdered[i] << endl;
+    }
+
+    cout << "Press any key to continue: ";
+    getch();
+}
+
+// update ingredients ordered
+void updateIngredientsOrdered()
+{
+    string serialNumberToUpdate, newTemporaryIngredeint, newTemporaryQuantity;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Update Ingredients");
+
+        cout << "Enter serial number of the ingredient you want to update: (Enter 0 to go back)";
+        cin >> serialNumberToUpdate;
+
+        if (serialNumberToUpdate == "0")
+        {
+            break;
+        }
+
+        if (stringNumberValidate(serialNumberToUpdate))
+        {
+            if (stoi(serialNumberToUpdate) > 0 && stoi(serialNumberToUpdate) < ingredientsOrdersCount)
+            {
+                cout << "Enter new ingredient: ";
+                cin >> newTemporaryIngredeint;
+
+                // ingredients validation will be added here
+
+                ingredientsOrdered[stoi(serialNumberToUpdate) - 1] = newTemporaryIngredeint;
+                cout << "Enter new quantity: ";
+                cin >> newTemporaryQuantity;
+
+                if (stringNumberValidate(newTemporaryQuantity))
+                {
+                    quantitiesOfIngredientsOrdered[stoi(serialNumberToUpdate) - 1] = stoi(newTemporaryQuantity);
+                }
+            }
+            else
+            {
+                cout << "Enter valid number. Press any key to try again";
+                getch();
+            }
+        }
+        else
+        {
+            cout << "Enter valid number. Press any key to try again";
+            getch();
+        }
+    }
+}
+
+// delete ingredients
+
+void deleteIngredientsOrdered()
+{
+    string serialNumberToDelete;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Delete ingredinets");
+        cout << "Enter serial number of the ingredient you want to delete: (Enter 0 to go back)";
+        cin >> serialNumberToDelete;
+
+        if (serialNumberToDelete == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberToDelete))
+        {
+            if (stoi(serialNumberToDelete) > 0 && stoi(serialNumberToDelete) < ingredientsOrdersCount)
+            {
+                for (int i = stoi(serialNumberToDelete); i < ingredientsOrdersCount - 1; i++)
+                {
+                    ingredientsOrdered[i] = ingredientsOrdered[i + 1];
+                    quantitiesOfIngredientsOrdered[i] = quantitiesOfIngredientsOrdered[i + 1];
+                }
+                ingredientsOrdersCount--;
+            }
+            else
+            {
+                cout << "Invalid number. Press any key to try again";
+                continue;
+            }
+        }
+        else
+        {
+            cout << "Invalid number. Press any key to try again";
+            continue;
+        }
+    }
+}
+//--------------------------------------------------------------------------------------------------
+
+// Add ingredients to the table
+
+void addIngredientsToTheTable()
+{
+    string tableIngredient;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Ingredients Table");
+        cout << "Enter name of ingredient that you want to add: " << endl;
+        cout << "(Press 0 to go back)" << endl;
+        cin >> tableIngredient;
+
+        if (tableIngredient == "0")
+        {
+            break;
+        }
+        recipeIngredients[numberOfTableIngredients] = tableIngredient;
+        numberOfTableIngredients++;
+    }
+}
+
+// view ingredients in the table
+void viewIngredientsInTheTable()
+{
+    system("cls");
+    header();
+    subHeader("Table Ingredients");
+    cout << "Serial Number"
+         << "\t\t"
+         << "Ingredient" << endl;
+    for (int i = 0; i < numberOfTableIngredients; i++)
+    {
+        cout << i + 1 << "\t\t" << recipeIngredients[i] << endl;
+    }
+
+    cout << "Press any key to continue" << endl;
+    getch();
+}
+
+// delete ingredients from the table
+
+void deleteIngredientsFromTheTable()
+{
+    string serialNumberToDelete;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Deleting Table Ingredients");
+        cout << "Enter serial number (from the recipee table) of the ingredient you want to delete: " << endl;
+        cin >> serialNumberToDelete;
+        if (stringNumberValidate(serialNumberToDelete))
+        {
+            if (stoi(serialNumberToDelete) > 0 && stoi(serialNumberToDelete) < numberOfTableIngredients)
+            {
+                for (int i = stoi(serialNumberToDelete); i < numberOfTableIngredients - 1; i++)
+                {
+                    recipeIngredients[i] = recipeIngredients[i + 1];
+                }
+                numberOfTableIngredients--;
+            }
+            else
+            {
+                cout << "Enter a valid number. Press any key to try again" << endl;
+                getch();
+            }
+        }
+        else
+        {
+            cout << "Enter a valid number. Press any key to try again" << endl;
+            getch();
+        }
+    }
+}
+// helpful side functions
+bool stringNumberValidate(string number) // to check if a string can be correctly evaluated into a number
+{
+    bool flag = true;
+    for (int i = 0; i < number.length(); i++)
+    {
+        if (number[i] < 48 || number[i] > 57)
+        {
+            flag = false;
+            break;
+        }
+    }
+    return flag;
+}
+
+void header()
+{
+    cout << "    ##############################" << endl;
+    cout << "" << endl;
+    cout << "  /$$$$$$  /$$                             /$$" << endl;
+    cout << " /$$__  $$| $$                            | $$" << endl;
+    cout << "| $$  \\__/| $$$$$$$   /$$$$$$   /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$$" << endl;
+    cout << "| $$      | $$__  $$ /$$__  $$ /$$__  $$|_  $$_/   /$$__  $$ /$$_____/" << endl;
+    cout << "| $$      | $$  \\ $$| $$$$$$$$| $$$$$$$$  | $$    | $$  \\ $$|  $$$$$$ " << endl;
+    cout << "| $$    $$| $$  | $$| $$_____/| $$_____/  | $$ /$$| $$  | $$ \\____  $$" << endl;
+    cout << "|  $$$$$$/| $$  | $$|  $$$$$$$|  $$$$$$$  |  $$$$/|  $$$$$$/ /$$$$$$$/" << endl;
+    cout << " \\______/ |__/  |__/ \\_______/ \\_______/   \\___/   \\______/ |_______/ " << endl;
+    cout << " " << endl;
+    cout << "                                  ######################################" << endl;
+}
+
+void subHeader(string nameMenu)
+{
+    cout << endl;
+    cout << "----------------------------------------------------------------------------------------------" << endl;
+    cout << "                               " << nameMenu << " Menu                                        " << endl;
+    cout << "----------------------------------------------------------------------------------------------" << endl;
 }
