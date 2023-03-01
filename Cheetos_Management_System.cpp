@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <windows.h>
 #include <conio.h>
 
@@ -81,6 +82,10 @@ void updateUserInfo(string username);
 bool deleteUserInterface(string username);
 void deleteUser(string username);
 
+
+// users in file
+void addUsersToFile(); // to add users in file.
+void loadUsersFromFile();
 //-------------------------------------------------------------------------------------------------------------------------------------
 // Manufacturing orders
 // Adding orders
@@ -145,9 +150,9 @@ void addIngredientsToTheTable();
 
 void viewIngredientsInTheTable();
 
-//
 // helpful side functions
 bool stringNumberValidate(string number);
+string parse(string line, int field);
 
 main()
 {
@@ -662,6 +667,7 @@ bool addUserInterface(string usernameOfUser)
             }
             else
             {
+                addUsersToFile();
                 break; // if all validations are passed, we break the loop and call the function to add the user in our array
             }
         }
@@ -863,6 +869,7 @@ void updateUserInfo(string username)
                 usernames[i] = newUsername;
                 passwords[i] = newPassword;
                 roles[i] = newRole;
+                addUsersToFile();
                 break;
             }
         }
@@ -973,6 +980,35 @@ int userIndex(string username)
     return -1;
 }
 
+// adding users to the file
+void addUsersToFile()
+{
+    fstream fileUser;
+    fileUser.open("users.txt", ios::out);
+
+    for (int i = 0; i < countUsers; i++)
+    {
+        fileUser << usernames[i] << "," << passwords[i] << "," << roles[i] << endl;
+    }
+    fileUser.close();
+}
+// loading users from sile
+void loadUsersFromFile()
+{
+    string line;
+    fstream fileUser;
+    fileUser.open("users.txt", ios::in);
+
+    while(!fileUser.eof())
+    {
+        getline(fileUser, line);
+        usernames[countUsers] = parse(line, 1);
+        passwords[countUsers] = parse(line, 2);
+        roles[countUsers] = parse(line, 3);
+        countUsers++;
+    }
+    fileUser.close();
+}
 //--------------------------------------------------------------------------------------------------------------------------------------------------------
 // manufacturing orders
 // adding
@@ -1454,6 +1490,10 @@ bool stringNumberValidate(string number) // to check if a string can be correctl
         }
     }
     return flag;
+}
+string parse(string line, int field)
+{
+
 }
 
 void header()
