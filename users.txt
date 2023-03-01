@@ -1,4 +1,2 @@
-admin,dustbin12,admin
-tahashahid203,dustbin12,employee
-tahashahid509,geronim000!,admin
-ahmar,dustbin,employee
+tahashahid203,geronim000!,admin
+tahashahid509,dustbin12,employee

@@ -5,13 +5,6 @@
 
 using namespace std;
 
-// You have to sign in with this for the first time:
-
-// username: adminOriginal001
-// password: OAdminO10!
-
-// Only the last four features, namely: Adding users, deleting users, retrieving users, updating users, work yet. Other features will be added soon.
-
 /* the arrays for usernames, passwords and roles must be global so that all functions can access them*/
 /* The length of the array has been hardcored according to the capacity of the factory to house employees and admins */
 const int maximumOccupancy = 50;
@@ -20,15 +13,12 @@ string passwords[maximumOccupancy];
 string roles[maximumOccupancy];
 
 /* Although the length of the username, password and roles arrays have been set according to the factory's capacity, we must only check
-that portion of the array that is being used. Initially there's only one user in the system i.e the original admin. So, we must access
-only the first element of the arrays by setting countUsers = 1.
+that portion of the array that is being used. Initially there's no user in the system. So, we must access
+none of the elements of the arrays by setting countUsers = 0.
 
 As the admin adds more users in the system, the countUsers variable will keep incrementing*/
 
 int countUsers = 0;
-
-/* To get the role of a user as an admin or an employee once his credentials have been verified after signing in*/
-string getRole(string username);
 
 /* To validate whether the user who has signed in actually exists in the system or not*/
 bool signInInterface(string username, string password);
@@ -43,22 +33,12 @@ string employeeChoice();
 
 /* function choosers based on the option that the user chose in the above functions */
 bool adminFunctionChoosers(string option, string usernameOfUser);
-bool employeeFunctionChoosers(string option);
-
-/* display invalid user prompt */
-void invalidUserPrompt();
-
-/* The header of the system*/
-void header();
-void subHeader(string nameMenu);
-
-/* admin option functions */
-/* a function to count the number of admins in the system. This number must always be greater than 0*/
-
-int adminCount();
-
-/* A function to return a user's index by using his username */
-int userIndex(string username);
+bool employeeFunctionChoosers(string option, string usernameOfEmployee);
+//................................................................................................................................................
+//................................................................................................................................................
+// ADMIN FUNCTIONS
+//................................................................................................................................................
+//................................................................................................................................................
 
 /* adding users */
 
@@ -116,6 +96,9 @@ void updateManufacturingOrders();
 void deleteManufacturingOrderInterface();  // interface
 void deleteManufacturingOrders(int index); // deletor
 
+// is a flavor in the system?
+bool isFlavorInTheSystem(string flavor);
+
 // storing mannufacturing orders in file
 
 void addManufacturingOrdersToFile();
@@ -150,6 +133,11 @@ void deleteIngredientsOrdered();
 // validations
 // is an ingredient in the recipe table?
 bool isIngredientInTheTable(string ingredient);
+
+// add ingredients to file
+void addIngredientsOrdersToFile();
+// read ingredients from file
+void readIngredientsOrdersFromFile();
 //-------------------------------------------------------------------------------------------------------------------------------------
 // ingredients in table
 
@@ -194,14 +182,47 @@ void addFlavorsToFile();
 
 // read flavors from file
 void readFlavorsFromFile();
-//........................................................................................................................................
+//................................................................................................................................................
+//................................................................................................................................................
+// EMPLOYEE FUNCTIONS
+//................................................................................................................................................
+//................................................................................................................................................
+
+const int maximumRequests = 10;
+int numberOfRequests = 0;
+string ingredientRequest[maximumRequests];
+int ingredientRequestQuantity[maximumRequests];
+string ingredientRequestEmployeeName[maximumRequests];
+
+void uploadIngredientRequest(string usernameOfEmployee);
+
+//................................................................................................................................................
 // helpful side functions
+//................................................................................................................................................
+
 bool stringNumberValidate(string number);
 string parse(string line, int field);
+/* To get the role of a user as an admin or an employee once his credentials have been verified after signing in*/
+string getRole(string username);
+/* display invalid user prompt */
+void invalidUserPrompt();
+/* The header of the system*/
+void header();
+void subHeader(string nameMenu);
+
+/* admin option functions */
+/* a function to count the number of admins in the system. This number must always be greater than 0*/
+
+int adminCount();
+
+/* A function to return a user's index by using his username */
+int userIndex(string username);
 
 main()
 {
     loadUsersFromFile();
+    readIngredientsOrdersFromFile();
+    readManufacturingOrdersFromFile();
     readIngredientsFromFile();
     readFlavorsFromFile();
     if (countUsers == 0)
@@ -282,7 +303,7 @@ main()
                     string employeeOption = employeeChoice(); // show employee's chosen option
                     /* After getting the option chosen by the employee, the proper function will be displayed */
 
-                    if (!employeeFunctionChoosers(employeeOption))
+                    if (!employeeFunctionChoosers(employeeOption, username))
                     {
                         flagEmployee = true;
                         break;
@@ -395,6 +416,8 @@ void employeeInterface()
     cout << "9  View your suggestions " << endl;
     cout << "10 request section leader for delay in deadline " << endl;
     cout << "11 request section leader for editing recipes " << endl;
+    cout << "12 View ingredients recipe table " << endl;
+    cout << "13 View flavors added in the system " << endl;
     cout << endl;
 
     cout << "Enter 0 to exit to login screen" << endl;
@@ -431,7 +454,7 @@ string employeeChoice()
 
         cout << "Enter choice: ";
         cin >> choice;
-        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11"))
+        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13"))
         {
             cout << "That is not an available option." << endl;
             cout << "Press any key to continue: " << endl;
@@ -573,7 +596,7 @@ the control might return to the option */
 
     return true;
 }
-bool employeeFunctionChoosers(string employeeOption)
+bool employeeFunctionChoosers(string employeeOption, string usernameOfEmployee)
 {
     char c;
     bool flag = true;
@@ -584,9 +607,7 @@ bool employeeFunctionChoosers(string employeeOption)
 
     else if (employeeOption == "1")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        uploadIngredientRequest(usernameOfEmployee);
     }
     else if (employeeOption == "2")
     {
@@ -647,6 +668,14 @@ bool employeeFunctionChoosers(string employeeOption)
         cout << "Coming soon" << endl;
         cout << "Enter any key to continue: " << endl;
         getch();
+    }
+    else if (employeeOption == "12")
+    {
+        viewIngredientsInTheTable();
+    }
+    else if (employeeOption == "13")
+    {
+        viewCheetosFlavors();
     }
 
     return flag;
@@ -1109,7 +1138,7 @@ void loadUsersFromFile()
 
 void addManufacturingOrder()
 {
-    string choice, numberOfOrders, temporaryQuantity, temporaryPrice;
+    string choice, numberOfOrders, temporaryQuantity, temporaryPrice, temporaryFlavor;
     while (true)
     {
         system("cls");
@@ -1140,7 +1169,19 @@ void addManufacturingOrder()
         for (int i = 0; i < stoi(numberOfOrders); i++)
         {
             cout << "Enter Flavor: ";
-            cin >> manufacturingOrderFlavors[manufacturingOrdersCount];
+            cin >> temporaryFlavor;
+            if (isFlavorInTheSystem(temporaryFlavor))
+            {
+                manufacturingOrderFlavors[i] = temporaryFlavor;
+            }
+            else
+            {
+                system("cls");
+                cout << "This flavor has not been stored in the system. Press any key to try again" << endl;
+                getch();
+                i--;
+                continue;
+            }
 
             cout << "Enter quantity: ";
             cin >> temporaryQuantity;
@@ -1209,7 +1250,7 @@ void viewManufacturingOrders()
 // update manufaturing orders
 void updateManufacturingOrders()
 {
-    string serialNumberToUpdate, temporaryQuantity, temporaryPrice;
+    string serialNumberToUpdate, temporaryQuantity, temporaryPrice, temporaryFlavor;
     bool flavorFlag = true;
     bool quantityFlag = true;
     bool priceFlag = true;
@@ -1237,7 +1278,11 @@ void updateManufacturingOrders()
                 if (flavorFlag)
                 {
                     cout << "Enter new flavor: ";
-                    cin >> manufacturingOrderFlavors[stoi(serialNumberToUpdate) - 1];
+                    cin >> temporaryFlavor;
+                    if (isFlavorInTheSystem(temporaryFlavor))
+                    {
+                        manufacturingOrderFlavors[stoi(serialNumberToUpdate) - 1] = temporaryFlavor;
+                    }
                 }
                 if (quantityFlag)
                 {
@@ -1340,6 +1385,21 @@ void deleteManufacturingOrders(int index)
     manufacturingOrdersCount--;
     addManufacturingOrdersToFile();
 }
+// validations
+// is a manufacturing flavor in the system?
+bool isFlavorInTheSystem(string flavor)
+{
+    bool flag = false;
+    for (int i = 0; i < numberOfFlavorsAdded; i++)
+    {
+        if (flavor == flavorsAdded[i])
+        {
+            flag = true;
+            break;
+        }
+    }
+    return flag;
+}
 // adding manufacturing orders to file
 void addManufacturingOrdersToFile()
 {
@@ -1421,6 +1481,7 @@ void addIngredients()
             continue;
         }
         ingredientsOrdersCount++;
+        addIngredientsOrdersToFile();
     }
 }
 
@@ -1462,6 +1523,7 @@ void updateIngredientsOrdered()
         if (!newIngredientFlag && !newIngredientQuantityFlag)
         {
             serialNumberFlag = true;
+            addManufacturingOrdersToFile();
         }
         if (serialNumberFlag)
         {
@@ -1501,7 +1563,7 @@ void updateIngredientsOrdered()
                 if (stringNumberValidate(newTemporaryQuantity))
                 {
                     quantitiesOfIngredientsOrdered[stoi(serialNumberToUpdate) - 1] = stoi(newTemporaryQuantity);
-                    newTemporaryQuantity = false;
+                    newIngredientQuantityFlag = false;
                 }
             }
             else
@@ -1545,6 +1607,7 @@ void deleteIngredientsOrdered()
                     quantitiesOfIngredientsOrdered[i] = quantitiesOfIngredientsOrdered[i + 1];
                 }
                 ingredientsOrdersCount--;
+                addManufacturingOrdersToFile();
             }
             else
             {
@@ -1574,6 +1637,36 @@ bool isIngredientInTheTable(string ingredient)
         }
     }
     return flag;
+}
+// add ingredients to file
+void addIngredientsOrdersToFile()
+{
+    fstream file;
+    file.open("ingredientsOrders.txt", ios::out);
+    for (int i = 0; i < ingredientsOrdersCount; i++)
+    {
+        file << ingredientsOrdered[i] << "," << quantitiesOfIngredientsOrdered[i] << endl;
+    }
+    file.close();
+}
+// read ingredients from file
+void readIngredientsOrdersFromFile()
+{
+    fstream file;
+    string line;
+    file.open("ingredientsOrders.txt", ios::in);
+    while (!file.eof())
+    {
+        getline(file, line);
+        if (line == "")
+        {
+            continue;
+        }
+        ingredientsOrdered[ingredientsOrdersCount] = parse(line, 1);
+        quantitiesOfIngredientsOrdered[ingredientsOrdersCount] = stoi(parse(line, 2));
+        ingredientsOrdersCount++;
+    }
+    file.close();
 }
 //--------------------------------------------------------------------------------------------------
 
@@ -1804,6 +1897,52 @@ void readFlavorsFromFile()
         numberOfFlavorsAdded++;
     }
     file.close();
+}
+//................................................................................................................................................
+//................................................................................................................................................
+// EMPLOYEE FUNCTIONS
+//................................................................................................................................................
+//................................................................................................................................................
+
+void uploadIngredientRequest(string usernameOfEmployee)
+{
+    string requestedIngredient, requestedQuantity;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Ingredient Request");
+        cout << "Enter requested ingredient: ";
+        cin >> requestedIngredient;
+        if (isIngredientInTheTable(requestedIngredient))
+        {
+            ingredientRequest[numberOfRequests] = requestedIngredient;
+        }
+        else
+        {
+            system("cls");
+            cout << "This ingredient is not in the recipe table. Press any key to try again" << endl;
+            getch();
+            continue;
+        }
+
+        cout << "Enter requested ingredient's quantity: ";
+        cin >> requestedQuantity;
+
+        if (stringNumberValidate(requestedQuantity))
+        {
+            ingredientRequestQuantity[numberOfRequests] = stoi(requestedQuantity);
+        }
+        else
+        {
+            system("cls");
+            cout << "Enter valid quantity. Press any key to try again" << endl;
+            getch();
+            continue;
+        }
+        ingredientRequestEmployeeName[numberOfRequests] = usernameOfEmployee;
+        numberOfRequests++;
+    }
 }
 // helpful side functions
 bool stringNumberValidate(string number) // to check if a string can be correctly evaluated into a number
