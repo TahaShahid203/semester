@@ -25,7 +25,7 @@ only the first element of the arrays by setting countUsers = 1.
 
 As the admin adds more users in the system, the countUsers variable will keep incrementing*/
 
-int countUsers = 1;
+int countUsers = 0;
 
 /* To get the role of a user as an admin or an employee once his credentials have been verified after signing in*/
 string getRole(string username);
@@ -61,6 +61,10 @@ int adminCount();
 int userIndex(string username);
 
 /* adding users */
+
+// initial sign up
+void initialSignUp();
+
 /* user adding menu */
 bool addUserInterface(string usernameOfUser);
 /* To check whether a user already exists in the system */
@@ -81,7 +85,6 @@ void updateUserInfo(string username);
 /* deleting users */
 bool deleteUserInterface(string username);
 void deleteUser(string username);
-
 
 // users in file
 void addUsersToFile(); // to add users in file.
@@ -112,6 +115,14 @@ void updateManufacturingOrders();
 // delete manufacturing orders
 void deleteManufacturingOrderInterface();  // interface
 void deleteManufacturingOrders(int index); // deletor
+
+// storing mannufacturing orders in file
+
+void addManufacturingOrdersToFile();
+
+// reading manufacturing orders from file
+
+void readManufacturingOrdersFromFile();
 //..........................................................................................................................................................
 // ingredients
 
@@ -136,6 +147,9 @@ void updateIngredientsOrdered();
 
 void deleteIngredientsOrdered();
 
+// validations
+// is an ingredient in the recipe table?
+bool isIngredientInTheTable(string ingredient);
 //-------------------------------------------------------------------------------------------------------------------------------------
 // ingredients in table
 
@@ -150,16 +164,52 @@ void addIngredientsToTheTable();
 
 void viewIngredientsInTheTable();
 
+// delete ingredients from the table
+void deleteIngredientsFromTheTable();
+
+// add table ingredients to file
+void addIngredientsToFile();
+
+// read ingredients from file
+void readIngredientsFromFile();
+//.......................................................................................................................................
+
+// Cheetos Flavors
+const int maximumCheetosFlavors = 50;
+int numberOfFlavorsAdded = 0;
+string flavorsAdded[maximumCheetosFlavors];
+// adding cheetos flavors
+
+void addCheetosFlavors();
+
+// view flavors in system
+
+void viewCheetosFlavors();
+
+// deleting flavors
+void deleteFlavorsFromSystem();
+
+// add flavors to file
+void addFlavorsToFile();
+
+// read flavors from file
+void readFlavorsFromFile();
+//........................................................................................................................................
 // helpful side functions
 bool stringNumberValidate(string number);
 string parse(string line, int field);
 
 main()
 {
+    loadUsersFromFile();
+    readIngredientsFromFile();
+    readFlavorsFromFile();
+    if (countUsers == 0)
+    {
+        initialSignUp();
+        addUsersToFile();
+    }
     /* The original user of the system aka the first admin must be hardcored into the system*/
-    usernames[0] = "adminOriginal001";
-    passwords[0] = "OAdminO10!";
-    roles[0] = "admin";
 
     while (true)
     {
@@ -324,6 +374,9 @@ void adminInterface()
     cout << "17 View user info" << endl;
     cout << "18 Delete user info" << endl;
     cout << "19 Delete ingredient from the table" << endl;
+    cout << "20 Add a flavor into the system" << endl;
+    cout << "21 Delete a flavor from the system" << endl;
+    cout << "22 View flavors in system" << endl;
     cout << endl;
     cout << "Enter 0 to exit to login screen" << endl;
 }
@@ -357,7 +410,7 @@ string adminChoice()
 
         cout << "Enter choice: ";
         cin >> choice;
-        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13" || choice == "14" || choice == "15" || choice == "16" || choice == "17" || choice == "18" || choice == "19"))
+        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13" || choice == "14" || choice == "15" || choice == "16" || choice == "17" || choice == "18" || choice == "19" || choice == "20" || choice == "21" || choice == "22"))
         {
             cout << "That is not an available option." << endl;
             cout << "Press any key to continue: " << endl;
@@ -493,7 +546,6 @@ the control might return to the option */
     {
         if (deleteUserInterface(usernameOfUser))
         {
-            cout << "User deleted successfully" << endl;
             cout << "Press any key to continue" << endl;
             getch();
         }
@@ -505,6 +557,18 @@ the control might return to the option */
     else if (option == "19")
     {
         deleteIngredientsFromTheTable();
+    }
+    else if (option == "20")
+    {
+        addCheetosFlavors();
+    }
+    else if (option == "21")
+    {
+        deleteFlavorsFromSystem();
+    }
+    else if (option == "22")
+    {
+        viewCheetosFlavors();
     }
 
     return true;
@@ -588,6 +652,29 @@ bool employeeFunctionChoosers(string employeeOption)
     return flag;
 }
 // Adding users to the system
+// initial sign up
+void initialSignUp()
+{
+    string username, password;
+    system("cls");
+    cout << "Cheetos management system will be up and running shortly. Before we begin, however, let us set up a few things" << endl
+         << endl;
+    cout << "This is the initial sign up of the system. After this sign up, the entered credentials will be automatically registered as admin." << endl
+         << endl;
+    cout << "After that, the system has safeguards to ensure that atleast one admin stays in the system" << endl
+         << endl
+         << endl
+         << endl;
+
+    cout << "Enter username: ";
+    cin >> username;
+
+    cout << "Enter password: ";
+    cin >> password;
+
+    addUser(username, password, "admin");
+}
+// later sign ups
 bool addUserInterface(string usernameOfUser)
 {
     bool flag = true;
@@ -667,7 +754,7 @@ bool addUserInterface(string usernameOfUser)
             }
             else
             {
-                addUsersToFile();
+
                 break; // if all validations are passed, we break the loop and call the function to add the user in our array
             }
         }
@@ -676,6 +763,7 @@ bool addUserInterface(string usernameOfUser)
     if (flag)
     {
         addUser(username, password, role);
+        addUsersToFile();
     }
     return flag;
 }
@@ -953,6 +1041,7 @@ void deleteUser(string username)
     passwords[countUsers - 1] = "temporary123";
     roles[countUsers - 1] = "temporary123";
     countUsers--;
+    addUsersToFile();
 }
 int adminCount()
 {
@@ -999,9 +1088,14 @@ void loadUsersFromFile()
     fstream fileUser;
     fileUser.open("users.txt", ios::in);
 
-    while(!fileUser.eof())
+    while (!fileUser.eof())
     {
         getline(fileUser, line);
+        if (line == "")
+        {
+            continue;
+        }
+
         usernames[countUsers] = parse(line, 1);
         passwords[countUsers] = parse(line, 2);
         roles[countUsers] = parse(line, 3);
@@ -1079,6 +1173,7 @@ void addManufacturingOrder()
             }
             manufacturingOrdersCount++;
         }
+        addManufacturingOrdersToFile();
     }
 }
 bool orderPriceVerification(string price)
@@ -1174,6 +1269,7 @@ void updateManufacturingOrders()
                 }
                 else
                 {
+                    addManufacturingOrdersToFile();
                     break;
                 }
             }
@@ -1242,8 +1338,42 @@ void deleteManufacturingOrders(int index)
         manufacturingOrderQuantity[i] = manufacturingOrderQuantity[i + 1];
     }
     manufacturingOrdersCount--;
+    addManufacturingOrdersToFile();
 }
+// adding manufacturing orders to file
+void addManufacturingOrdersToFile()
+{
+    fstream file;
+    file.open("manufacturingOrders.txt", ios::out);
+    for (int i = 0; i < manufacturingOrdersCount; i++)
+    {
+        file << manufacturingOrderFlavors[i] << "," << manufacturingOrderQuantity << "," << manufacturingOrderIndividualPrice << endl;
+    }
+    file.close();
+}
+// reading manufacturing orders from file
+void readManufacturingOrdersFromFile()
+{
+    string line;
+    fstream file;
+    file.open("manufacturingOrders.txt", ios::in);
 
+    while (!file.eof())
+    {
+        getline(file, line);
+        if (line == "")
+        {
+            continue;
+        }
+
+        manufacturingOrderFlavors[manufacturingOrdersCount] = parse(line, 1);
+        manufacturingOrderQuantity[manufacturingOrdersCount] = stoi(parse(line, 2));
+        manufacturingOrderIndividualPrice[manufacturingOrdersCount] = stoi(parse(line, 3));
+        manufacturingOrdersCount++;
+    }
+    file.close();
+}
+//.......................................................................................................................................
 // ingredients
 
 // add ingredients
@@ -1265,6 +1395,15 @@ void addIngredients()
         }
 
         // ingredients' validatons will be called here in the future
+
+        if (!isIngredientInTheTable(ingredientTobeOrdered))
+        {
+            system("cls");
+            cout << "This ingredient is not in the recipe table" << endl;
+            cout << "Press any key to try again" << endl;
+            getch();
+            continue;
+        }
 
         ingredientsOrdered[ingredientsOrdersCount] = ingredientTobeOrdered;
 
@@ -1312,14 +1451,23 @@ void viewIngredientsOrdered()
 void updateIngredientsOrdered()
 {
     string serialNumberToUpdate, newTemporaryIngredeint, newTemporaryQuantity;
+    bool serialNumberFlag = true;
+    bool newIngredientFlag = true;
+    bool newIngredientQuantityFlag = true;
     while (true)
     {
         system("cls");
         header();
         subHeader("Update Ingredients");
-
-        cout << "Enter serial number of the ingredient you want to update: (Enter 0 to go back)";
-        cin >> serialNumberToUpdate;
+        if (!newIngredientFlag && !newIngredientQuantityFlag)
+        {
+            serialNumberFlag = true;
+        }
+        if (serialNumberFlag)
+        {
+            cout << "Enter serial number of the ingredient you want to update: (Enter 0 to go back)";
+            cin >> serialNumberToUpdate;
+        }
 
         if (serialNumberToUpdate == "0")
         {
@@ -1330,11 +1478,22 @@ void updateIngredientsOrdered()
         {
             if (stoi(serialNumberToUpdate) > 0 && stoi(serialNumberToUpdate) < ingredientsOrdersCount)
             {
-                cout << "Enter new ingredient: ";
-                cin >> newTemporaryIngredeint;
-
+                serialNumberFlag = false;
+                if (newIngredientFlag)
+                {
+                    cout << "Enter new ingredient: ";
+                    cin >> newTemporaryIngredeint;
+                }
                 // ingredients validation will be added here
-
+                if (!isIngredientInTheTable(newTemporaryIngredeint))
+                {
+                    system("cls");
+                    cout << "This ingredient is not in the recipe table" << endl;
+                    cout << "Press any key to try again" << endl;
+                    getch();
+                    continue;
+                }
+                newIngredientFlag = false;
                 ingredientsOrdered[stoi(serialNumberToUpdate) - 1] = newTemporaryIngredeint;
                 cout << "Enter new quantity: ";
                 cin >> newTemporaryQuantity;
@@ -1342,6 +1501,7 @@ void updateIngredientsOrdered()
                 if (stringNumberValidate(newTemporaryQuantity))
                 {
                     quantitiesOfIngredientsOrdered[stoi(serialNumberToUpdate) - 1] = stoi(newTemporaryQuantity);
+                    newTemporaryQuantity = false;
                 }
             }
             else
@@ -1399,6 +1559,22 @@ void deleteIngredientsOrdered()
         }
     }
 }
+
+// validations
+// is an ingredient in the recipe table?
+bool isIngredientInTheTable(string ingredient)
+{
+    bool flag = false;
+    for (int i = 0; i < numberOfTableIngredients; i++)
+    {
+        if (ingredient == recipeIngredients[i])
+        {
+            flag = true;
+            break;
+        }
+    }
+    return flag;
+}
 //--------------------------------------------------------------------------------------------------
 
 // Add ingredients to the table
@@ -1421,6 +1597,7 @@ void addIngredientsToTheTable()
         }
         recipeIngredients[numberOfTableIngredients] = tableIngredient;
         numberOfTableIngredients++;
+        addIngredientsToFile();
     }
 }
 
@@ -1453,16 +1630,23 @@ void deleteIngredientsFromTheTable()
         header();
         subHeader("Deleting Table Ingredients");
         cout << "Enter serial number (from the recipee table) of the ingredient you want to delete: " << endl;
+        cout << "Enter 0 to go back";
         cin >> serialNumberToDelete;
+        if (serialNumberToDelete == "0")
+        {
+            break;
+        }
         if (stringNumberValidate(serialNumberToDelete))
         {
-            if (stoi(serialNumberToDelete) > 0 && stoi(serialNumberToDelete) < numberOfTableIngredients)
+            int index = stoi(serialNumberToDelete) - 1;
+            if (index >= 0 && index < numberOfTableIngredients)
             {
-                for (int i = stoi(serialNumberToDelete); i < numberOfTableIngredients - 1; i++)
+                for (int i = index; i < numberOfTableIngredients - 1; i++)
                 {
                     recipeIngredients[i] = recipeIngredients[i + 1];
                 }
                 numberOfTableIngredients--;
+                addIngredientsToFile();
             }
             else
             {
@@ -1476,6 +1660,150 @@ void deleteIngredientsFromTheTable()
             getch();
         }
     }
+}
+
+// add table ingredients to file
+void addIngredientsToFile()
+{
+    fstream file;
+    file.open("tableIngredients.txt", ios::out);
+    for (int i = 0; i < numberOfTableIngredients; i++)
+    {
+        file << recipeIngredients[i] << endl;
+    }
+    file.close();
+}
+// read ingredients from file
+void readIngredientsFromFile()
+{
+    fstream file;
+    string line;
+    file.open("tableIngredients.txt", ios::in);
+    while (!file.eof())
+    {
+        getline(file, line);
+        if (line == "")
+        {
+            continue;
+        }
+        recipeIngredients[numberOfTableIngredients] = line;
+        numberOfTableIngredients++;
+    }
+    file.close();
+}
+//................................................................................................................................................
+
+// cheetos flavors
+// adding
+void addCheetosFlavors()
+{
+    string cheetosFlavor;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Cheetos Flavor");
+        cout << "Enter name of flavor that you want to add: " << endl;
+        cout << "(Press 0 to go back)" << endl;
+        cin >> cheetosFlavor;
+
+        if (cheetosFlavor == "0")
+        {
+            break;
+        }
+        flavorsAdded[numberOfFlavorsAdded] = cheetosFlavor;
+        numberOfFlavorsAdded++;
+        addFlavorsToFile();
+    }
+}
+// viewing
+void viewCheetosFlavors()
+{
+    system("cls");
+    header();
+    subHeader("Cheetos Flavors");
+    cout << "Serial Number"
+         << "\t\t"
+         << "Flavor" << endl;
+    for (int i = 0; i < numberOfFlavorsAdded; i++)
+    {
+        cout << i + 1 << "\t\t" << flavorsAdded[i] << endl;
+    }
+
+    cout << "Press any key to continue" << endl;
+    getch();
+}
+// delete flavors
+
+void deleteFlavorsFromSystem()
+{
+
+    string serialNumberToDelete;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Deleting Cheetos Flavors");
+        cout << "Enter serial number (from the flavor table) of the flavor you want to delete: " << endl;
+        cout << "Enter 0 to go back";
+        cin >> serialNumberToDelete;
+        if (serialNumberToDelete == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberToDelete))
+        {
+            int index = stoi(serialNumberToDelete) - 1;
+            if (index >= 0 && index < numberOfFlavorsAdded)
+            {
+                for (int i = index; i < numberOfFlavorsAdded - 1; i++)
+                {
+                    flavorsAdded[i] = flavorsAdded[i + 1];
+                }
+                numberOfFlavorsAdded--;
+                addFlavorsToFile();
+            }
+            else
+            {
+                cout << "Enter a valid number. Press any key to try again" << endl;
+                getch();
+            }
+        }
+        else
+        {
+            cout << "Enter a valid number. Press any key to try again" << endl;
+            getch();
+        }
+    }
+}
+// add flavors to file
+void addFlavorsToFile()
+{
+    fstream file;
+    file.open("systemFlavors.txt", ios::out);
+    for (int i = 0; i < numberOfFlavorsAdded; i++)
+    {
+        file << flavorsAdded[i] << endl;
+    }
+    file.close();
+}
+// read flavors from file
+void readFlavorsFromFile()
+{
+    fstream file;
+    string line;
+    file.open("systemFlavors.txt", ios::in);
+    while (!file.eof())
+    {
+        getline(file, line);
+        if (line == "")
+        {
+            continue;
+        }
+        flavorsAdded[numberOfFlavorsAdded] = line;
+        numberOfFlavorsAdded++;
+    }
+    file.close();
 }
 // helpful side functions
 bool stringNumberValidate(string number) // to check if a string can be correctly evaluated into a number
@@ -1493,7 +1821,21 @@ bool stringNumberValidate(string number) // to check if a string can be correctl
 }
 string parse(string line, int field)
 {
+    int commaCount = 1;
+    string requiredString = "";
+    for (int i = 0; i < line.length(); i++)
+    {
+        if (line[i] == ',')
+        {
+            commaCount++;
+        }
+        else if (commaCount == field)
+        {
+            requiredString += line[i];
+        }
+    }
 
+    return requiredString;
 }
 
 void header()
