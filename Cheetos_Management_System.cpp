@@ -227,6 +227,7 @@ string feedbackEmployeeName[maximumFeedbacks];
 void addfeedbackFromEmployee(string employeeName);
 // view feedback
 void viewFeedbackFromEmployee(string employeeName);
+void detailFeedbackView(int serialNumber);
 //..................................................................................
 // request for change in recipe ingredients
 const int maximumNumberOfRequestsForChangeInRecipes = 50;
@@ -2154,9 +2155,13 @@ void addIngredientsInShortage()
         system("cls");
         header();
         subHeader("ingredients in shortage");
-        cout << "Enter ingredient in shortage: ";
+        cout << "Enter ingredient in shortage: (Enter 0 to go back)";
         cin >> ingredientInShortage;
 
+        if (ingredientInShortage == "0")
+        {
+            break;
+        }
         if (isIngredientInTheTable(ingredientInShortage))
         {
             ingredientsInShortage[numberOfIngredientsInShortage] = ingredientInShortage;
@@ -2191,44 +2196,88 @@ void addfeedbackFromEmployee(string employeeName)
 {
     string paragraphOfFeedback;
     string controllerOfControl;
+    int i = 0;
     while (true)
     {
         system("cls");
         header();
         subHeader("Feedback");
-        cout << "Press 0 to go back and any other key to continue: " << endl;
         cout << "Enter your feedback: (Enter 0 to go back)";
         getline(cin, paragraphOfFeedback);
 
-        employeeFeedbacks[numberOfFeedbacksAdded] = paragraphOfFeedback;
-        feedbackEmployeeName[numberOfFeedbacksAdded] = employeeName;
-        numberOfFeedbacksAdded++; // a glitch i can't figure out but i have solved experimentally. getline tends to take an empty string initially
+        if (paragraphOfFeedback == "0")
+        {
+            break;
+        }
+        if (i != 0)
+        {
+            employeeFeedbacks[numberOfFeedbacksAdded] = paragraphOfFeedback;
+            feedbackEmployeeName[numberOfFeedbacksAdded] = employeeName;
+            numberOfFeedbacksAdded++; // a glitch i can't figure out. getline tends to take an empty string initially
+        }
+        i++;
     }
 }
 
 // view feedback from employee
 void viewFeedbackFromEmployee(string employeeName)
 {
-    system("cls");
-    header();
-    subHeader("Employee feedback");
-    cout << "Serial Number: "
-         << "\t\t"
-         << "Employee Name"
-         << "\t\t"
-         << "Feedback" << numberOfFeedbacksAdded << endl
-         << endl;
-    for (int i = 0; i < numberOfFeedbacksAdded; i++)
+    string serialNumberForDetail;
+    while (true)
     {
-        cout << i + 1 << "\t\t" << feedbackEmployeeName[i] << "\t\t";
-        for (int j = 0; j < 10; j++)
+        system("cls");
+        header();
+        subHeader("Employee feedback");
+        cout << "Serial Number: "
+             << "\t\t"
+             << "Employee Name"
+             << "\t\t"
+             << "Feedback" << endl
+             << endl;
+        for (int i = 0; i < numberOfFeedbacksAdded; i++)
         {
-            cout << employeeFeedbacks[i][j];
+            cout << i + 1 << "\t\t" << feedbackEmployeeName[i] << "\t\t";
+            for (int j = 0; j < 10; j++)
+            {
+                cout << employeeFeedbacks[i][j];
+            }
+            cout << "......" << endl;
         }
-        cout << "......" << endl;
+        cout << endl;
+        cout << "Enter serial number for detail view: ";
+        cin >> serialNumberForDetail;
+
+        if (serialNumberForDetail == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberForDetail))
+        {
+            if (stoi(serialNumberForDetail) > 0 && stoi(serialNumberForDetail) <= numberOfFeedbacksAdded)
+            {
+                detailFeedbackView(stoi(serialNumberForDetail));
+            }
+            else
+            {
+                cout << "Incorrect number. Press any key to try again" << endl;
+                getch();
+                continue;
+            }
+        }
+        else
+        {
+            cout << "Incorrect number. Press any key to try again" << endl;
+            getch();
+            continue;
+        }
     }
-    cout << endl;
-    cout << "Press any key to continue: ";
+}
+// detail view
+void detailFeedbackView(int serialNumber)
+{
+    system("cls");
+    cout << employeeFeedbacks[serialNumber] << endl << endl;
+    cout << "Press any key to continue: " << endl;
     getch();
 }
 
@@ -2236,13 +2285,17 @@ void viewFeedbackFromEmployee(string employeeName)
 void addRequests(string employeeUsername)
 {
     string newIngredient;
-    while(true)
+    while (true)
     {
         system("cls");
         header();
         subHeader("Adding ingredients in recipes");
         cout << "Enter the name of ingredient that you want to add to the table: (Press 0 to go back)";
         cin >> newIngredient;
+        if (newIngredient == "0")
+        {
+            break;
+        }
         if (isIngredientInTheTable(newIngredient))
         {
             system("cls");
