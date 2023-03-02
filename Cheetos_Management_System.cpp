@@ -223,7 +223,18 @@ void addIngredientsInShortage();
 const int maximumFeedbacks = 50;
 int numberOfFeedbacksAdded = 0;
 string employeeFeedbacks[maximumFeedbacks];
-void addfeedbackFromEmployee();
+string feedbackEmployeeName[maximumFeedbacks];
+void addfeedbackFromEmployee(string employeeName);
+// view feedback
+void viewFeedbackFromEmployee(string employeeName);
+//..................................................................................
+// request for change in recipe ingredients
+const int maximumNumberOfRequestsForChangeInRecipes = 50;
+int numberOfRequestsForChangeInRecipes = 0;
+string requestedIngredientChangesInRecipes[maximumNumberOfRequestsForChangeInRecipes];
+string nameOfEmployeesWhoRequestedTheAddition[maximumNumberOfRequestsForChangeInRecipes];
+// adding requests
+void addRequests(string employeeUsername);
 //................................................................................................................................................
 // helpful side functions
 //................................................................................................................................................
@@ -446,10 +457,9 @@ void employeeInterface()
     cout << "7  Log shortage/excess of ingredients " << endl;
     cout << "8  Give a suggestion " << endl;
     cout << "9  View your suggestions " << endl;
-    cout << "10 request section leader for delay in deadline " << endl;
-    cout << "11 request section leader for editing recipes " << endl;
-    cout << "12 View ingredients recipe table " << endl;
-    cout << "13 View flavors added in the system " << endl;
+    cout << "10 request section leader for editing recipes " << endl;
+    cout << "11 View ingredients recipe table " << endl;
+    cout << "12 View flavors added in the system " << endl;
     cout << endl;
 
     cout << "Enter 0 to exit to login screen" << endl;
@@ -486,7 +496,7 @@ string employeeChoice()
 
         cout << "Enter choice: ";
         cin >> choice;
-        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12" || choice == "13"))
+        if (!(choice == "0" || choice == "1" || choice == "2" || choice == "3" || choice == "4" || choice == "5" || choice == "6" || choice == "7" || choice == "8" || choice == "9" || choice == "10" || choice == "11" || choice == "12"))
         {
             cout << "That is not an available option." << endl;
             cout << "Press any key to continue: " << endl;
@@ -667,33 +677,21 @@ bool employeeFunctionChoosers(string employeeOption, string usernameOfEmployee)
     }
     else if (employeeOption == "8")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        addfeedbackFromEmployee(usernameOfEmployee);
     }
     else if (employeeOption == "9")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        viewFeedbackFromEmployee(usernameOfEmployee);
     }
     else if (employeeOption == "10")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        addRequests(usernameOfEmployee);
     }
     else if (employeeOption == "11")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
-    }
-    else if (employeeOption == "12")
-    {
         viewIngredientsInTheTable();
     }
-    else if (employeeOption == "13")
+    else if (employeeOption == "12")
     {
         viewCheetosFlavors();
     }
@@ -2189,26 +2187,76 @@ void addIngredientsInShortage()
     }
 }
 // add feedback from employee
-void addfeedbackFromEmployee()
+void addfeedbackFromEmployee(string employeeName)
 {
     string paragraphOfFeedback;
+    string controllerOfControl;
     while (true)
     {
         system("cls");
         header();
         subHeader("Feedback");
-
+        cout << "Press 0 to go back and any other key to continue: " << endl;
         cout << "Enter your feedback: (Enter 0 to go back)";
         getline(cin, paragraphOfFeedback);
-        if (paragraphOfFeedback == "0")
+
+        employeeFeedbacks[numberOfFeedbacksAdded] = paragraphOfFeedback;
+        feedbackEmployeeName[numberOfFeedbacksAdded] = employeeName;
+        numberOfFeedbacksAdded++; // a glitch i can't figure out but i have solved experimentally. getline tends to take an empty string initially
+    }
+}
+
+// view feedback from employee
+void viewFeedbackFromEmployee(string employeeName)
+{
+    system("cls");
+    header();
+    subHeader("Employee feedback");
+    cout << "Serial Number: "
+         << "\t\t"
+         << "Employee Name"
+         << "\t\t"
+         << "Feedback" << numberOfFeedbacksAdded << endl
+         << endl;
+    for (int i = 0; i < numberOfFeedbacksAdded; i++)
+    {
+        cout << i + 1 << "\t\t" << feedbackEmployeeName[i] << "\t\t";
+        for (int j = 0; j < 10; j++)
         {
-            break;
+            cout << employeeFeedbacks[i][j];
         }
-        else
+        cout << "......" << endl;
+    }
+    cout << endl;
+    cout << "Press any key to continue: ";
+    getch();
+}
+
+// add recipe ingredients change requests
+void addRequests(string employeeUsername)
+{
+    string newIngredient;
+    while(true)
+    {
+        system("cls");
+        header();
+        subHeader("Adding ingredients in recipes");
+        cout << "Enter the name of ingredient that you want to add to the table: (Press 0 to go back)";
+        cin >> newIngredient;
+        if (isIngredientInTheTable(newIngredient))
         {
-            employeeFeedbacks[numberOfFeedbacksAdded] = paragraphOfFeedback;
-            numberOfFeedbacksAdded++;
+            system("cls");
+            cout << "This ingredient already exists. Press any key to try again." << endl;
+            getch();
+            continue;
         }
+        requestedIngredientChangesInRecipes[numberOfRequestsForChangeInRecipes] = newIngredient;
+        nameOfEmployeesWhoRequestedTheAddition[numberOfRequestsForChangeInRecipes] = employeeUsername;
+        numberOfRequestsForChangeInRecipes++;
+        system("cls");
+        cout << "Thank you for your request. It will be considered by the admins" << endl;
+        cout << "Press any key to continue" << endl;
+        getch();
     }
 }
 // helpful side functions
