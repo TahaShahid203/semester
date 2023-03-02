@@ -194,8 +194,22 @@ string ingredientRequest[maximumRequests];
 int ingredientRequestQuantity[maximumRequests];
 string ingredientRequestEmployeeName[maximumRequests];
 
+// add request for ingredients
 void uploadIngredientRequest(string usernameOfEmployee);
 
+// view request for ingredients
+void viewIngredientRequest(string usernameOfEmployee);
+
+// edit requests for ingredients
+void editRequestForIngredients(string usernameOfUser);
+
+// delete requests for ingredients
+void deleteRequestForIngredients(string usernameOfEmployee);
+
+// add requests to file
+void addIngredientsRequestToFile();
+// read requests from file
+void readIngredientsRequestFromFile();
 //................................................................................................................................................
 // helpful side functions
 //................................................................................................................................................
@@ -218,8 +232,12 @@ int adminCount();
 /* A function to return a user's index by using his username */
 int userIndex(string username);
 
+int numberOfRequestsByAUser(string usernameOfEmployee);
+int indexOfRequestBySerialNumber(string serialNumberToUpdate, string usernameOfUser);
+
 main()
 {
+    readIngredientsFromFile();
     loadUsersFromFile();
     readIngredientsOrdersFromFile();
     readManufacturingOrdersFromFile();
@@ -611,27 +629,19 @@ bool employeeFunctionChoosers(string employeeOption, string usernameOfEmployee)
     }
     else if (employeeOption == "2")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        viewIngredientRequest(usernameOfEmployee);
     }
     else if (employeeOption == "3")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        editRequestForIngredients(usernameOfEmployee);
     }
     else if (employeeOption == "4")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        deleteRequestForIngredients(usernameOfEmployee);
     }
     else if (employeeOption == "5")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        viewManufacturingOrders();
     }
     else if (employeeOption == "6")
     {
@@ -1168,8 +1178,12 @@ void addManufacturingOrder()
         }
         for (int i = 0; i < stoi(numberOfOrders); i++)
         {
-            cout << "Enter Flavor: ";
+            cout << "Enter Flavor: (Press 0 to exit)";
             cin >> temporaryFlavor;
+            if (temporaryFlavor == "0")
+            {
+                break;
+            }
             if (isFlavorInTheSystem(temporaryFlavor))
             {
                 manufacturingOrderFlavors[i] = temporaryFlavor;
@@ -1407,7 +1421,7 @@ void addManufacturingOrdersToFile()
     file.open("manufacturingOrders.txt", ios::out);
     for (int i = 0; i < manufacturingOrdersCount; i++)
     {
-        file << manufacturingOrderFlavors[i] << "," << manufacturingOrderQuantity << "," << manufacturingOrderIndividualPrice << endl;
+        file << manufacturingOrderFlavors[i] << "," << manufacturingOrderQuantity[i] << "," << manufacturingOrderIndividualPrice[i] << endl;
     }
     file.close();
 }
@@ -1904,6 +1918,7 @@ void readFlavorsFromFile()
 //................................................................................................................................................
 //................................................................................................................................................
 
+// adding ingredient request
 void uploadIngredientRequest(string usernameOfEmployee)
 {
     string requestedIngredient, requestedQuantity;
@@ -1912,8 +1927,13 @@ void uploadIngredientRequest(string usernameOfEmployee)
         system("cls");
         header();
         subHeader("Ingredient Request");
-        cout << "Enter requested ingredient: ";
+        cout << "Enter requested ingredient: (Press 0 to go back)";
         cin >> requestedIngredient;
+
+        if (requestedIngredient == "0")
+        {
+            break;
+        }
         if (isIngredientInTheTable(requestedIngredient))
         {
             ingredientRequest[numberOfRequests] = requestedIngredient;
@@ -1942,7 +1962,179 @@ void uploadIngredientRequest(string usernameOfEmployee)
         }
         ingredientRequestEmployeeName[numberOfRequests] = usernameOfEmployee;
         numberOfRequests++;
+        addIngredientsOrdersToFile();
     }
+}
+// viewing ingredient request
+void viewIngredientRequest(string usernameOfEmployee)
+{
+    system("cls");
+    header();
+    subHeader("Employee requests");
+    int count = 1;
+    cout << "Serial Number"
+         << "\t\t"
+         << "Ingredient"
+         << "\t\t"
+         << "Quantity" << endl
+         << endl;
+    for (int i = 0; i < numberOfRequests; i++)
+    {
+        if (ingredientRequestEmployeeName[i] == usernameOfEmployee)
+        {
+            cout << count << "\t\t" << ingredientRequest[i] << "\t\t" << ingredientRequestQuantity[i] << endl;
+            count++;
+        }
+    }
+    cout << endl;
+    cout << "Press any key to continue" << endl;
+    getch();
+}
+// edit request for ingredient
+void editRequestForIngredients(string usernameOfUser)
+{
+    string serialNumberToUpdate, newIngredientToOrder, newIngredientQuantity;
+    int indexOfRequest;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Editing request");
+        cout << "Enter serial number of the request you want to edit: (Press 0 to go back)" << endl;
+        cin >> serialNumberToUpdate;
+
+        if (serialNumberToUpdate == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberToUpdate))
+        {
+            if (stoi(serialNumberToUpdate) > 0 && stoi(serialNumberToUpdate) <= numberOfRequestsByAUser(usernameOfUser))
+            {
+
+                indexOfRequest = indexOfRequestBySerialNumber(serialNumberToUpdate, usernameOfUser);
+                cout << "Enter new ingredient to order: ";
+                cin >> newIngredientToOrder;
+                if (isIngredientInTheTable(newIngredientToOrder))
+                {
+                    ingredientRequest[indexOfRequest] = newIngredientToOrder;
+                }
+                else
+                {
+                    system("cls");
+                    cout << "This ingredient is not in the recipe table. Press any key to try again" << endl;
+                    getch();
+                    continue;
+                }
+                cout << "Enter new quantity: ";
+                cin >> newIngredientQuantity;
+                if (stringNumberValidate(newIngredientQuantity))
+                {
+                    ingredientRequestQuantity[indexOfRequest] = stoi(newIngredientQuantity);
+                    addIngredientsOrdersToFile();
+                }
+                else
+                {
+                    system("cls");
+                    cout << "Enter a valid number. Press any key to try again";
+                    getch();
+                    continue;
+                }
+            }
+            else
+            {
+                system("cls");
+                cout << "Enter a valid number. Press any key to try again.";
+                getch();
+                continue;
+            }
+        }
+        else
+        {
+            system("cls");
+            cout << "Enter a valid number. Press any key to try again";
+            getch();
+            continue;
+        }
+    }
+}
+// delete ingredient request
+void deleteRequestForIngredients(string usernameOfEmployee)
+{
+    string serialNumberToDelete;
+    int indexOfRequest;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Ingredient request deletion");
+        cout << "Enter serial number of order that you want to delete: (Press 0 to go back)";
+        cin >> serialNumberToDelete;
+
+        if (serialNumberToDelete == "0")
+        {
+            break;
+        }
+        if (stringNumberValidate(serialNumberToDelete))
+        {
+            if (stoi(serialNumberToDelete) > 0 && stoi(serialNumberToDelete) <= numberOfRequestsByAUser(usernameOfEmployee))
+            {
+                indexOfRequest = indexOfRequestBySerialNumber(serialNumberToDelete, usernameOfEmployee);
+                for (int i = indexOfRequest; i < numberOfRequests; i++)
+                {
+                    ingredientRequest[i] = ingredientRequest[i + 1];
+                    ingredientRequestQuantity[i] = ingredientRequestQuantity[i + 1];
+                    ingredientRequestEmployeeName[i] = ingredientRequestEmployeeName[i + 1];
+                }
+                numberOfRequests--;
+                addIngredientsOrdersToFile();
+            }
+            else
+            {
+                system("cls");
+                cout << "Enter valid number. Press any key to try again." << endl;
+                getch();
+                continue;
+            }
+        }
+        else
+        {
+            system("cls");
+            cout << "Enter valid number. Press any key to try again." << endl;
+            getch();
+            continue;
+        }
+    }
+}
+// add ingredients requests to file
+void addIngredientsRequestToFile()
+{
+    fstream file;
+    file.open("employeeIngredientsRequest.txt", ios::out);
+    for (int i = 0; i < numberOfRequests; i++)
+    {
+        file << ingredientRequest[i] << "," << ingredientRequestQuantity[i] << "," << ingredientRequestEmployeeName[i] << endl;
+    }
+    file.close();
+}
+void readIngredientsRequestFromFile()
+{
+    fstream file;
+    string line;
+    file.open("employeeIngredientsRequest.txt", ios::in);
+    while (!file.eof())
+    {
+        getline(file, line);
+        if (line == "")
+        {
+            continue;
+        }
+        ingredientRequest[numberOfRequests] = parse(line, 1);
+        ingredientRequestQuantity[numberOfRequests] = stoi(parse(line, 2));
+        ingredientRequestEmployeeName[numberOfRequests] = parse(line, 3);
+        numberOfRequests++;
+    }
+    file.close();
 }
 // helpful side functions
 bool stringNumberValidate(string number) // to check if a string can be correctly evaluated into a number
@@ -1975,6 +2167,35 @@ string parse(string line, int field)
     }
 
     return requiredString;
+}
+int numberOfRequestsByAUser(string usernameOfEmployee)
+{
+    int numberOfRequestsByAUser = 0;
+    for (int i = 0; i < numberOfRequests; i++)
+    {
+        if (ingredientRequestEmployeeName[i] == usernameOfEmployee)
+        {
+            numberOfRequestsByAUser++;
+        }
+    }
+    return numberOfRequestsByAUser;
+}
+int indexOfRequestBySerialNumber(string serialNumberToUpdate, string usernameOfUser)
+{
+    int indexOfRequest = -1;
+    int requestCount = 0;
+    for (int i = 0; i < numberOfRequests; i++)
+    {
+        if (ingredientRequestEmployeeName[i] == usernameOfUser)
+        {
+            requestCount++;
+        }
+        if (requestCount == stoi(serialNumberToUpdate))
+        {
+            indexOfRequest = requestCount - 1;
+        }
+    }
+    return indexOfRequest;
 }
 
 void header()
