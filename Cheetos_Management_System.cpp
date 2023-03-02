@@ -193,7 +193,7 @@ int numberOfRequests = 0;
 string ingredientRequest[maximumRequests];
 int ingredientRequestQuantity[maximumRequests];
 string ingredientRequestEmployeeName[maximumRequests];
-
+// requests.........................................................
 // add request for ingredients
 void uploadIngredientRequest(string usernameOfEmployee);
 
@@ -210,6 +210,20 @@ void deleteRequestForIngredients(string usernameOfEmployee);
 void addIngredientsRequestToFile();
 // read requests from file
 void readIngredientsRequestFromFile();
+
+// shortage of ingredients.....................................................
+const int maximumShortage = 5;
+int numberOfIngredientsInShortage = 0;
+string ingredientsInShortage[maximumShortage];
+int quantityInShortage[maximumShortage];
+
+void addIngredientsInShortage();
+
+// give feedback..............................................................
+const int maximumFeedbacks = 50;
+int numberOfFeedbacksAdded = 0;
+string employeeFeedbacks[maximumFeedbacks];
+void addfeedbackFromEmployee();
 //................................................................................................................................................
 // helpful side functions
 //................................................................................................................................................
@@ -645,15 +659,11 @@ bool employeeFunctionChoosers(string employeeOption, string usernameOfEmployee)
     }
     else if (employeeOption == "6")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        viewIngredientsOrdered(); // ingredients ordered by the admin will be the ingredients recieved by the employee
     }
     else if (employeeOption == "7")
     {
-        cout << "Coming soon" << endl;
-        cout << "Enter any key to continue: " << endl;
-        getch();
+        addIngredientsInShortage();
     }
     else if (employeeOption == "8")
     {
@@ -2135,6 +2145,71 @@ void readIngredientsRequestFromFile()
         numberOfRequests++;
     }
     file.close();
+}
+
+// add shortage of ingredients.....................................................................
+void addIngredientsInShortage()
+{
+    string ingredientInShortage, quantityByWhichItWasShort;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("ingredients in shortage");
+        cout << "Enter ingredient in shortage: ";
+        cin >> ingredientInShortage;
+
+        if (isIngredientInTheTable(ingredientInShortage))
+        {
+            ingredientsInShortage[numberOfIngredientsInShortage] = ingredientInShortage;
+        }
+        else
+        {
+            system("cls");
+            cout << "This ingredient is not in the recipe table. Press any key to try again." << endl;
+            getch();
+            continue;
+        }
+
+        cout << "Enter quantity by which it was in shortage: ";
+        cin >> quantityByWhichItWasShort;
+
+        if (stringNumberValidate(quantityByWhichItWasShort))
+        {
+            quantityInShortage[numberOfIngredientsInShortage] = stoi(quantityByWhichItWasShort);
+            numberOfIngredientsInShortage++;
+        }
+        else
+        {
+            system("cls");
+            cout << "Enter valid quantity. Press any key to try again." << endl;
+            getch();
+            continue;
+        }
+    }
+}
+// add feedback from employee
+void addfeedbackFromEmployee()
+{
+    string paragraphOfFeedback;
+    while (true)
+    {
+        system("cls");
+        header();
+        subHeader("Feedback");
+
+        cout << "Enter your feedback: (Enter 0 to go back)";
+        getline(cin, paragraphOfFeedback);
+        if (paragraphOfFeedback == "0")
+        {
+            break;
+        }
+        else
+        {
+            employeeFeedbacks[numberOfFeedbacksAdded] = paragraphOfFeedback;
+            numberOfFeedbacksAdded++;
+        }
+    }
 }
 // helpful side functions
 bool stringNumberValidate(string number) // to check if a string can be correctly evaluated into a number

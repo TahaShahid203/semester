@@ -1,2 +1,0 @@
-flamingo,20,30
-puffs,10,15
